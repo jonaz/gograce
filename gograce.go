@@ -10,8 +10,9 @@ import (
 	"time"
 )
 
-func NewServerWithTimeout(t time.Duration) *http.Server {
+func NewServerWithTimeout(t time.Duration) (*http.Server, chan struct{}) {
 
+	shutdown := make(chan struct{})
 	srv := &http.Server{}
 
 	quit := make(chan os.Signal)
@@ -23,10 +24,11 @@ func NewServerWithTimeout(t time.Duration) *http.Server {
 		ctx, cancel := context.WithTimeout(context.Background(), t)
 		defer cancel()
 		if err := srv.Shutdown(ctx); err != nil {
-			log.Fatal("gograce: error server shutdown:", err)
+			log.Println("gograce: error server shutdown:", err)
 		}
+		close(shutdown)
 		log.Println("gograce: server exited")
 	}()
 
-	return srv
+	return srv, shutdown
 }
