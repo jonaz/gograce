@@ -1,0 +1,2 @@
+# gograce
+Small lib to help with golang graceful http server shutdown
